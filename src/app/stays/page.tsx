@@ -18,32 +18,42 @@ export default async function BrowseStaysPage() {
   });
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-4">
-          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            ← Back to home
+        <div className="mx-auto max-w-7xl px-4 py-4">
+          <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+            <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to home
           </Link>
         </div>
       </div>
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Browse stays</h1>
-        <p className="mt-1 text-slate-600 text-sm">
-          Choose a stay and book your dates.
-        </p>
+      <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Browse Stays</h1>
+          <p className="mt-3 text-lg text-slate-600">
+            Discover beautiful properties ready for your next stay
+          </p>
+        </div>
 
         {listings.length === 0 ? (
-          <div className="mt-10 rounded-xl border border-slate-200 bg-white p-12 text-center">
-            <p className="font-medium text-slate-900">No stays available yet</p>
-            <p className="mt-1 text-sm text-slate-600">
-              New stays will appear here once they’re published. Check back soon.
+          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-16 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 mb-4">
+              <svg className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900">No stays available yet</h2>
+            <p className="mt-2 text-base text-slate-600 max-w-md mx-auto">
+              New stays will appear here once they're published. Check back soon for exciting properties.
             </p>
-            <Link href="/" className="mt-4 inline-block text-sm font-medium text-slate-700 hover:text-slate-900">
-              Back to home
+            <Link href="/" className="mt-6 inline-flex items-center btn-secondary">
+              Back to Home
             </Link>
           </div>
         ) : (
-          <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing) => {
               const photos = (listing.property.photos as string[]) ?? [];
               const imageUrl = photos[0] ?? null;
@@ -51,31 +61,32 @@ export default async function BrowseStaysPage() {
                 <li key={listing.id}>
                   <Link
                     href={`/stays/${listing.slug}`}
-                    className="block overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow"
+                    className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-slate-300 hover:shadow-lg"
                   >
-                    <div className="relative aspect-[4/3] bg-slate-200">
+                    <div className="relative aspect-[4/3] bg-slate-200 overflow-hidden">
                       {imageUrl ? (
                         <Image
                           src={imageUrl}
                           alt=""
                           fill
-                          className="object-cover"
+                          className="object-cover transition-transform group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           unoptimized
                         />
                       ) : (
-                        <span className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
+                        <span className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm bg-slate-100">
                           No image
                         </span>
                       )}
                     </div>
-                    <div className="p-4">
-                      <h2 className="font-semibold text-slate-900">{listing.title}</h2>
-                      <p className="mt-1 text-sm font-medium text-slate-700">
-                        ${listing.nightlyRate} <span className="font-normal text-slate-500">/ night</span>
+                    <div className="p-5">
+                      <h2 className="text-lg font-bold text-slate-900 line-clamp-1">{listing.title}</h2>
+                      <p className="mt-2 text-lg font-bold text-slate-900">
+                        ${listing.nightlyRate}
+                        <span className="text-sm font-normal text-slate-600"> / night</span>
                       </p>
-                      <p className="mt-2 text-xs text-slate-500">
-                        Up to {listing.maxGuests} guests
+                      <p className="mt-2 text-sm text-slate-600">
+                        Up to {listing.maxGuests} {listing.maxGuests === 1 ? 'guest' : 'guests'}
                       </p>
                     </div>
                   </Link>

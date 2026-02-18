@@ -4,14 +4,18 @@ import { db } from "@/server/db";
 import { sendBookingConfirmation } from "@/server/email";
 import { BookingStatus } from "@prisma/client";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
-
 export async function POST(req: Request) {
+  // Lazy initialization: only create Stripe client when keys are available
+  const stripeSecret = process.env.STRIPE_SECRET_KEY;
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret) {
-    console.error("STRIPE_WEBHOOK_SECRET is not set");
-    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+  
+  // If Stripe is not configured, return early (allows build to succeed)
+  if (!stripeSecret || !secret || stripeSecret.includes("...")) {
+    console.log("Stripe not configured - webhook endpoint inactive");
+    return NextResponse.json({ message: "Stripe not configured" }, { status: 503 });
   }
+
+  const stripe = new Stripe(stripeSecret);
 
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
