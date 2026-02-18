@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import path from "path";
 import { z } from "zod";
 import { db } from "@/server/db";
 import { PropertyStatus } from "@prisma/client";
