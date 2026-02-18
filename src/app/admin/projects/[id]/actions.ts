@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mkdir, writeFile } from "fs/promises";
+import { put } from "@vercel/blob";
 import path from "path";
 import { db } from "@/server/db";
 import { requireOperator } from "@/server/auth";
@@ -246,18 +246,35 @@ export async function saveListingFromForm(formData: FormData) {
     return;
   }
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-
+  // Upload to Vercel Blob Storage (works in production) or fallback to local for dev
   const urls: string[] = [];
   for (let i = 0; i < validPhotos.length; i++) {
     const file = validPhotos[i];
     const ext = path.extname(file.name) || ".jpg";
-    const filename = `listing-${listingId}-guest-${i}${ext}`;
-    const filepath = path.join(uploadDir, filename);
-    const bytes = await file.arrayBuffer();
-    await writeFile(filepath, Buffer.from(bytes));
-    urls.push(`/uploads/${filename}`);
+    const filename = `uploads/listing-${listingId}-guest-${i}${ext}`;
+    
+    try {
+      // Try Vercel Blob Storage first (works in production)
+      const blob = await put(filename, file, {
+        access: 'public',
+      });
+      urls.push(blob.url);
+    } catch (blobError) {
+      // Fallback to local storage for development
+      if (process.env.NODE_ENV === 'development') {
+        const { writeFile, mkdir } = await import("fs/promises");
+        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        await mkdir(uploadDir, { recursive: true });
+        const filepath = path.join(uploadDir, `listing-${listingId}-guest-${i}${ext}`);
+        const bytes = await file.arrayBuffer();
+        await writeFile(filepath, Buffer.from(bytes));
+        urls.push(`/uploads/listing-${listingId}-guest-${i}${ext}`);
+      } else {
+        console.error("Failed to upload to blob storage:", blobError);
+        // Silently skip this image in production if blob storage fails
+        continue;
+      }
+    }
   }
 
   await db.listing.update({
