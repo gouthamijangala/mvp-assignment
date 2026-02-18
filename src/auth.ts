@@ -5,6 +5,7 @@ const operatorEmail = process.env.OPERATOR_EMAIL ?? "";
 const operatorPassword = process.env.OPERATOR_PASSWORD ?? "";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   providers: [
     Credentials({
       name: "Operator",
