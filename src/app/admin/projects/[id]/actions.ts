@@ -246,34 +246,44 @@ export async function saveListingFromForm(formData: FormData) {
     return;
   }
 
-  // Upload to Vercel Blob Storage (works in production) or fallback to local for dev
+  // Upload to Vercel Blob Storage (works in production) or fallback to local/base64 for dev
   const urls: string[] = [];
+  const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+  
   for (let i = 0; i < validPhotos.length; i++) {
     const file = validPhotos[i];
     const ext = path.extname(file.name) || ".jpg";
     const filename = `uploads/listing-${listingId}-guest-${i}${ext}`;
     
-    try {
-      // Try Vercel Blob Storage first (works in production)
-      const blob = await put(filename, file, {
-        access: 'public',
-      });
-      urls.push(blob.url);
-    } catch (blobError) {
-      // Fallback to local storage for development
-      if (process.env.NODE_ENV === 'development') {
-        const { writeFile, mkdir } = await import("fs/promises");
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        await mkdir(uploadDir, { recursive: true });
-        const filepath = path.join(uploadDir, `listing-${listingId}-guest-${i}${ext}`);
-        const bytes = await file.arrayBuffer();
-        await writeFile(filepath, Buffer.from(bytes));
-        urls.push(`/uploads/listing-${listingId}-guest-${i}${ext}`);
-      } else {
-        console.error("Failed to upload to blob storage:", blobError);
-        // Silently skip this image in production if blob storage fails
+    if (hasBlobToken) {
+      try {
+        // Use Vercel Blob Storage when token is available
+        const blob = await put(filename, file, {
+          access: 'public',
+        });
+        urls.push(blob.url);
         continue;
+      } catch (blobError) {
+        console.error("Failed to upload to blob storage:", blobError);
+        // Fall through to fallback
       }
+    }
+    
+    // Fallback to local storage (development) or base64 encoding (production without blob)
+    if (process.env.NODE_ENV === 'development') {
+      const { writeFile, mkdir } = await import("fs/promises");
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await mkdir(uploadDir, { recursive: true });
+      const filepath = path.join(uploadDir, `listing-${listingId}-guest-${i}${ext}`);
+      const bytes = await file.arrayBuffer();
+      await writeFile(filepath, Buffer.from(bytes));
+      urls.push(`/uploads/listing-${listingId}-guest-${i}${ext}`);
+    } else {
+      // Production fallback: convert to base64 data URL
+      const bytes = await file.arrayBuffer();
+      const base64 = Buffer.from(bytes).toString('base64');
+      const mimeType = file.type || 'image/jpeg';
+      urls.push(`data:${mimeType};base64,${base64}`);
     }
   }
 

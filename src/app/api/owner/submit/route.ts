@@ -62,36 +62,42 @@ export async function POST(request: Request) {
     // Upload to Vercel Blob Storage (works in production) or fallback to local for dev
     const photoUrls: string[] = [];
     const id = `p-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
     
     for (let i = 0; i < validPhotos.length; i++) {
       const file = validPhotos[i];
       const ext = path.extname(file.name) || ".jpg";
       const filename = `${id}-${i}${ext}`;
       
-      try {
-        // Try Vercel Blob Storage first (works in production)
-        const blob = await put(`uploads/${filename}`, file, {
-          access: 'public',
-        });
-        photoUrls.push(blob.url);
-      } catch (blobError) {
-        // Fallback to local storage for development
-        if (process.env.NODE_ENV === 'development') {
-          const { writeFile, mkdir } = await import("fs/promises");
-          const path = await import("path");
-          const uploadDir = path.join(process.cwd(), "public", "uploads");
-          await mkdir(uploadDir, { recursive: true });
-          const filepath = path.join(uploadDir, filename);
-          const bytes = await file.arrayBuffer();
-          await writeFile(filepath, Buffer.from(bytes));
-          photoUrls.push(`/uploads/${filename}`);
-        } else {
+      if (hasBlobToken) {
+        try {
+          // Use Vercel Blob Storage when token is available
+          const blob = await put(`uploads/${filename}`, file, {
+            access: 'public',
+          });
+          photoUrls.push(blob.url);
+          continue;
+        } catch (blobError) {
           console.error("Failed to upload to blob storage:", blobError);
-          return NextResponse.json(
-            { error: "Failed to upload images. Please try again." },
-            { status: 500 }
-          );
+          // Fall through to local fallback
         }
+      }
+      
+      // Fallback to local storage (development) or base64 encoding (production without blob)
+      if (process.env.NODE_ENV === 'development') {
+        const { writeFile, mkdir } = await import("fs/promises");
+        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        await mkdir(uploadDir, { recursive: true });
+        const filepath = path.join(uploadDir, filename);
+        const bytes = await file.arrayBuffer();
+        await writeFile(filepath, Buffer.from(bytes));
+        photoUrls.push(`/uploads/${filename}`);
+      } else {
+        // Production fallback: convert to base64 data URL (works but not ideal for large images)
+        const bytes = await file.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString('base64');
+        const mimeType = file.type || 'image/jpeg';
+        photoUrls.push(`data:${mimeType};base64,${base64}`);
       }
     }
 
