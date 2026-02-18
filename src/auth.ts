@@ -8,6 +8,8 @@ const operatorPassword = process.env.OPERATOR_PASSWORD ?? "";
 const nextAuthSecretRaw = process.env.NEXTAUTH_SECRET;
 const authSecretRaw = process.env.AUTH_SECRET;
 const computedSecret = nextAuthSecretRaw || authSecretRaw;
+const allEnvKeys = Object.keys(process.env);
+const customEnvKeys = allEnvKeys.filter(k => !k.startsWith('VERCEL_') && !k.startsWith('NEXT_') && !k.startsWith('NODE_'));
 const debugData = {
   sessionId: '673c5e',
   location: 'src/auth.ts:8',
@@ -21,7 +23,11 @@ const debugData = {
     computedSecretIsUndefined: computedSecret === undefined,
     computedSecretIsEmpty: computedSecret === '',
     nodeEnv: process.env.NODE_ENV,
-    allEnvKeys: Object.keys(process.env).filter(k => k.includes('AUTH') || k.includes('SECRET')).join(',')
+    totalEnvKeys: allEnvKeys.length,
+    customEnvKeys: customEnvKeys.join(','),
+    allEnvKeys: allEnvKeys.join(','),
+    vercelEnv: process.env.VERCEL_ENV,
+    vercelUrl: process.env.VERCEL_URL
   },
   timestamp: Date.now(),
   runId: 'vercel',
