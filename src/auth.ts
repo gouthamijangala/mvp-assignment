@@ -31,6 +31,10 @@ console.error('[DEBUG] Auth secret check:', JSON.stringify(debugData, null, 2));
 fetch('http://127.0.0.1:7823/ingest/84337e17-207d-4a10-b493-89d4fd5491b2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'673c5e'},body:JSON.stringify(debugData)}).catch(()=>{});
 // #endregion
 
+// Provide a fallback secret in production if env vars are missing (for debugging)
+// This should NOT be used in real production - it's only to help diagnose the issue
+const finalSecret = computedSecret || (process.env.NODE_ENV === 'production' ? undefined : 'dev-fallback-secret-not-for-production');
+
 // #region agent log
 console.error('[DEBUG] NextAuth init - secret value:', {
   hasSecret: !!computedSecret,
@@ -44,7 +48,7 @@ console.error('[DEBUG] NextAuth init - secret value:', {
 // #endregion
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: computedSecret,
+  secret: finalSecret,
   providers: [
     Credentials({
       name: "Operator",
