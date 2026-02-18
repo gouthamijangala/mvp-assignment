@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OPERATOR
+  OWNER
+  FREELANCER
+  GUEST
+}
+
+enum PropertyStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  LISTED
+}
+
+enum ProjectStatus {
+  INTAKE
+  WAITING_FREELANCER
+  ASSIGNED
+  READY_TO_LIST
+  LISTED
+}
+
+enum FreelancerProfileStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum FreelancerApplicationStatus {
+  APPLIED
+  ACCEPTED
+  REJECTED
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(OPERATOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  freelancerProfile FreelancerProfile?
+}
+
+model Property {
+  id              String          @id @default(cuid())
+  ownerName       String
+  ownerEmail      String
+  title           String
+  description     String
+  address         String
+  photos          Json
+  status          PropertyStatus  @default(PENDING_REVIEW)
+  baseNightlyRate Int
+  maxGuests       Int
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  project Project?
+  listing Listing?
+}
+
+model Project {
+  id         String         @id @default(cuid())
+  property   Property       @relation(fields: [propertyId], references: [id])
+  propertyId String         @unique
+  status     ProjectStatus  @default(INTAKE)
+  notes      String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  applications FreelancerApplication[]
+  assignments  Assignment[]
+}
+
+model FreelancerProfile {
+  id        String                     @id @default(cuid())
+  user      User                       @relation(fields: [userId], references: [id])
+  userId    String                     @unique
+  bio       String?
+  skills    Json
+  regions   Json
+  status    FreelancerProfileStatus    @default(ACTIVE)
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
+
+  applications FreelancerApplication[]
+  assignments  Assignment[]
+}
+
+model FreelancerApplication {
+  id            String                        @id @default(cuid())
+  project       Project                       @relation(fields: [projectId], references: [id])
+  projectId     String
+  freelancer    FreelancerProfile             @relation(fields: [freelancerId], references: [id])
+  freelancerId  String
+  status        FreelancerApplicationStatus   @default(APPLIED)
+  message       String?
+  createdAt     DateTime                      @default(now())
+  updatedAt     DateTime                      @updatedAt
+}
+
+model Assignment {
+  id           String            @id @default(cuid())
+  project      Project           @relation(fields: [projectId], references: [id])
+  projectId    String
+  freelancer   FreelancerProfile @relation(fields: [freelancerId], references: [id])
+  freelancerId String
+  status       AssignmentStatus  @default(ASSIGNED)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model Listing {
+  id           String        @id @default(cuid())
+  property     Property      @relation(fields: [propertyId], references: [id])
+  propertyId   String        @unique
+  slug         String        @unique
+  title        String
+  description  String
+  nightlyRate  Int
+  cleaningFee  Int
+  maxGuests    Int
+  status       ListingStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  /// Optional, operator-curated photo set specifically for guests (array of URLs).
+  guestPhotos  Json?
+
+  bookings Booking[]
+}
+
+model Booking {
+  id                   String        @id @default(cuid())
+  listing              Listing       @relation(fields: [listingId], references: [id])
+  listingId            String
+  guestEmail           String
+  guestName            String?
+  checkIn              DateTime
+  checkOut             DateTime
+  totalAmount          Int
+  currency             String
+  status               BookingStatus @default(PENDING_PAYMENT)
+  stripeSessionId      String?       @unique
+  stripePaymentIntentId String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+}
+
+model EventLog {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  type       String
+  data       Json
+  createdAt  DateTime @default(now())
+}
+
