@@ -61,6 +61,7 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  password  String?  // Hashed password (null for operator accounts)
   role      Role     @default(OPERATOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

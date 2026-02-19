@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { db } from "@/server/db";
+import bcrypt from "bcryptjs";
 
 const operatorEmail = process.env.OPERATOR_EMAIL ?? "";
 const operatorPassword = process.env.OPERATOR_PASSWORD ?? "";
@@ -66,10 +68,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
+
+        // Check operator credentials first (from env vars)
         if (operatorEmail && email === operatorEmail && password === operatorPassword) {
           return { id: "operator", email, name: "Operator", role: "OPERATOR" };
         }
-        return null;
+
+        // Check database users
+        try {
+          const user = await db.user.findUnique({
+            where: { email },
+          });
+
+          if (!user || !user.password) {
+            return null; // User doesn't exist or has no password (legacy account)
+          }
+
+          // Verify password
+          const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name ?? undefined,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       },
     }),
   ],

@@ -1,38 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signUpAction } from "./actions";
 
-function SignInForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
-  const registered = searchParams.get("registered") === "true";
+export default function SignUpPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"OWNER" | "FREELANCER" | "GUEST">("GUEST");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        callbackUrl,
-        redirect: false,
-      });
+      const formData = new FormData();
+      formData.set("email", email);
+      formData.set("name", name);
+      formData.set("password", password);
+      formData.set("role", role);
+
+      const result = await signUpAction(formData);
       if (result?.error) {
-        setError("Invalid email or password. Please try again.");
+        setError(result.error);
         return;
       }
-      if (result?.ok && result?.url) {
-        window.location.href = result.url;
-        return;
+      if (result?.success) {
+        // Redirect to sign-in page with success message
+        router.push("/signin?registered=true");
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -51,34 +66,49 @@ function SignInForm() {
       </Link>
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-10 shadow-lg">
         <div className="text-center mb-8">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 mb-4 shadow-md">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-sky-600 mb-4 shadow-md">
             <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Sign in</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Sign in to access your account. Operators use this to manage projects and listings.
+            Sign up to access personalized features and manage your properties or bookings.
           </p>
         </div>
-        {registered && (
-          <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-            <div className="flex items-start">
-              <svg className="h-5 w-5 text-emerald-600 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-sm text-emerald-800">
-                Account created successfully! Please sign in with your email and password.
-              </p>
-            </div>
-          </div>
-        )}
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="role" className="input-label">I am a</label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as "OWNER" | "FREELANCER" | "GUEST")}
+              className="input-field"
+              required
+            >
+              <option value="GUEST">Guest (booking stays)</option>
+              <option value="OWNER">Property Owner</option>
+              <option value="FREELANCER">Freelancer</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="name" className="input-label">Full name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input-field"
+              placeholder="John Doe"
+            />
+          </div>
           <div>
             <label htmlFor="email" className="input-label">Email</label>
             <input
@@ -99,12 +129,28 @@ function SignInForm() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input-field"
-              placeholder="Enter your password"
+              placeholder="At least 6 characters"
+              minLength={6}
+            />
+            <p className="helper-text">Must be at least 6 characters long.</p>
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="input-label">Confirm password</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="input-field"
+              placeholder="Re-enter your password"
             />
           </div>
           {error && (
@@ -128,40 +174,22 @@ function SignInForm() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Signing in...
+                Creating account...
               </span>
             ) : (
-              "Sign In"
+              "Create Account"
             )}
           </button>
-          <div className="pt-4 border-t border-slate-200 space-y-2">
+          <div className="pt-4 border-t border-slate-200">
             <p className="text-xs text-center text-slate-500">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="font-medium text-sky-600 hover:text-sky-700">
-                Create one →
-              </Link>
-            </p>
-            <p className="text-xs text-center text-slate-500">
-              Need operator access?{" "}
-              <Link href="/admin/signin" className="font-medium text-indigo-600 hover:text-indigo-700">
-                Operator login →
+              Already have an account?{" "}
+              <Link href="/signin" className="font-medium text-sky-600 hover:text-sky-700">
+                Sign in →
               </Link>
             </p>
           </div>
         </form>
       </div>
     </main>
-  );
-}
-
-export default function SignInPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-500 text-sm">Loading…</p>
-      </div>
-    }>
-      <SignInForm />
-    </Suspense>
   );
 }
