@@ -3,6 +3,23 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-sky-50 via-emerald-50 to-white">
+      {/* Header with Sign In */}
+      <div className="border-b border-slate-200 bg-white/80 backdrop-blur sticky top-0 z-50">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <Link href="/" className="text-lg font-bold text-slate-900">
+            Property Ops
+          </Link>
+          <Link
+            href="/signin"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:border-slate-400"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Sign In
+          </Link>
+        </div>
+      </div>
       {/* Hero Section – Motive */}
       <section className="border-b border-slate-200 bg-gradient-to-br from-sky-500 via-indigo-500 to-emerald-500 text-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
