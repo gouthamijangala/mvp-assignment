@@ -1,7 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { db } from "@/server/db";
-import bcrypt from "bcryptjs";
 
 const operatorEmail = process.env.OPERATOR_EMAIL ?? "";
 const operatorPassword = process.env.OPERATOR_PASSWORD ?? "";
@@ -74,8 +72,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return { id: "operator", email, name: "Operator", role: "OPERATOR" };
         }
 
-        // Check database users
+        // Check database users (lazy import to avoid bundling Prisma/bcrypt in Edge Runtime)
         try {
+          // Dynamic import to keep Edge Function size small - only loads when actually authenticating
+          const { db } = await import("@/server/db");
+          const bcrypt = await import("bcryptjs");
+          
           const user = await db.user.findUnique({
             where: { email },
           });
