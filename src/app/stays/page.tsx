@@ -18,23 +18,35 @@ export default async function BrowseStaysPage() {
   });
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+      <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          >
             <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to home
           </Link>
+          <span className="hidden rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 sm:inline-flex">
+            Guests · Discover live, operator‑approved stays
+          </span>
         </div>
       </div>
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Browse Stays</h1>
-          <p className="mt-3 text-lg text-slate-600">
-            Discover beautiful properties ready for your next stay
-          </p>
+        <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Browse stays</h1>
+            <p className="mt-3 text-lg text-slate-600">
+              Handpicked properties that have been reviewed by operators, with clear INR pricing for every night.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600 max-w-sm">
+            These stays come from owners who submitted their homes on the platform. Operators approve each property
+            and publish it here once it is guest‑ready.
+          </div>
         </div>
 
         {listings.length === 0 ? (
@@ -82,7 +94,7 @@ export default async function BrowseStaysPage() {
                     <div className="p-5">
                       <h2 className="text-lg font-bold text-slate-900 line-clamp-1">{listing.title}</h2>
                       <p className="mt-2 text-lg font-bold text-slate-900">
-                        ${listing.nightlyRate}
+                        ₹{listing.nightlyRate.toLocaleString("en-IN")}
                         <span className="text-sm font-normal text-slate-600"> / night</span>
                       </p>
                       <p className="mt-2 text-sm text-slate-600">

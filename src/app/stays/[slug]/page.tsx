@@ -38,15 +38,25 @@ export default async function StayPage({ params }: { params: Promise<{ slug: str
         </div>
       </div>
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-6">
+          <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{listing.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-4 text-base">
-            <span className="text-2xl font-bold text-slate-900">${listing.nightlyRate}</span>
+            <span className="text-2xl font-bold text-slate-900">
+              ₹{listing.nightlyRate.toLocaleString("en-IN")}
+            </span>
             <span className="text-slate-600">/ night</span>
             <span className="text-slate-300">·</span>
-            <span className="text-slate-600">Cleaning fee: <span className="font-semibold text-slate-900">${listing.cleaningFee}</span></span>
+            <span className="text-slate-600">
+              Cleaning fee:{" "}
+              <span className="font-semibold text-slate-900">
+                ₹{listing.cleaningFee.toLocaleString("en-IN")}
+              </span>
+            </span>
             <span className="text-slate-300">·</span>
-            <span className="text-slate-600">Up to <span className="font-semibold text-slate-900">{listing.maxGuests}</span> {listing.maxGuests === 1 ? 'guest' : 'guests'}</span>
+            <span className="text-slate-600">
+              Up to <span className="font-semibold text-slate-900">{listing.maxGuests}</span>{" "}
+              {listing.maxGuests === 1 ? "guest" : "guests"}
+            </span>
           </div>
         </div>
 

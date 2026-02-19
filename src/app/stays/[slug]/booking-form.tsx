@@ -45,7 +45,7 @@ export function BookingForm({
   if (state?.redirectUrl) {
     window.location.href = state.redirectUrl;
     return (
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
         <p className="text-slate-600 text-sm">Redirecting to checkout…</p>
       </div>
     );
@@ -59,7 +59,9 @@ export function BookingForm({
       <input type="hidden" name="maxGuests" value={maxGuests} />
       <div className="mb-6 pb-4 border-b border-slate-100">
         <h3 className="text-xl font-bold text-slate-900">Book your stay</h3>
-        <p className="mt-1 text-sm text-slate-600">Fill in your details to complete your booking</p>
+        <p className="mt-1 text-sm text-slate-600">
+          Pick your dates, number of guests, and contact email. You&apos;ll see the total in INR on the next step.
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>

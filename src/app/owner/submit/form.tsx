@@ -146,11 +146,15 @@ export function OwnerIntakeForm({
       <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 pb-4 border-b border-slate-100">
           <h2 className="text-lg font-bold text-slate-900">Pricing & Capacity</h2>
-          <p className="mt-1 text-sm text-slate-600">Set your expected rates and guest capacity</p>
+          <p className="mt-1 text-sm text-slate-600">
+            Set your expected rates in <span className="font-semibold">INR (₹)</span> and guest capacity
+          </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor="baseNightlyRate" className="input-label">Expected nightly rate ($)</label>
+            <label htmlFor="baseNightlyRate" className="input-label">
+              Expected nightly rate (₹)
+            </label>
             <input
               id="baseNightlyRate"
               name="baseNightlyRate"
@@ -158,9 +162,11 @@ export function OwnerIntakeForm({
               min={1}
               required
               className="input-field"
-              placeholder="99"
+              placeholder="3500"
             />
-            <p className="helper-text">Final rate may be adjusted when we create the listing.</p>
+            <p className="helper-text">
+              An approximate INR rate per night. We&apos;ll fine‑tune pricing when the guest‑facing listing is created.
+            </p>
           </div>
           <div>
             <label htmlFor="maxGuests" className="input-label">Max guests</label>

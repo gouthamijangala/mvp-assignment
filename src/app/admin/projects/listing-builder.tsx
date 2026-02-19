@@ -143,7 +143,7 @@ export function ListingBuilder({ projects }: { projects: Project[] }) {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label htmlFor="nightlyRate" className="block text-sm font-medium text-slate-700 mb-1">
-                Nightly Rate ($)
+                Nightly Rate (₹)
               </label>
               <input
                 id="nightlyRate"
@@ -155,7 +155,7 @@ export function ListingBuilder({ projects }: { projects: Project[] }) {
             </div>
             <div>
               <label htmlFor="cleaningFee" className="block text-sm font-medium text-slate-700 mb-1">
-                Cleaning Fee ($)
+                Cleaning Fee (₹)
               </label>
               <input
                 id="cleaningFee"

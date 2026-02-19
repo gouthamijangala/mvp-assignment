@@ -29,14 +29,19 @@ export default async function FreelancerProjectsPage() {
     const msg = e instanceof Error ? e.message : String(e);
     if (msg.includes("Can't reach database server") || msg.includes("P1001")) {
       return (
-        <main className="min-h-screen bg-slate-50">
-          <div className="border-b border-slate-200 bg-white px-4 py-4">
-            <div className="mx-auto max-w-2xl">
-              <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">← Back to home</Link>
+        <main className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+          <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+            <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+              <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+                ← Back to home
+              </Link>
+              <span className="hidden rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 sm:inline-flex">
+                Freelancers · Project board
+              </span>
             </div>
           </div>
-          <div className="mx-auto max-w-2xl px-4 py-10">
-            <h1 className="text-2xl font-semibold text-slate-900">Open projects</h1>
+          <div className="mx-auto max-w-3xl px-4 py-10">
+            <h1 className="text-3xl font-bold text-slate-900">Open projects</h1>
             <DbUnavailableMessage />
           </div>
         </main>
@@ -46,17 +51,25 @@ export default async function FreelancerProjectsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-2xl px-4 py-4">
-          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">← Back to home</Link>
+    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+      <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+            ← Back to home
+          </Link>
+          <span className="hidden rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 sm:inline-flex">
+            Freelancers · Apply to real properties
+          </span>
         </div>
       </div>
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Open projects</h1>
-        <p className="mt-1 text-slate-600 text-sm">
-          Apply to projects below. The operator will review your application and assign you if it’s a fit.
-        </p>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold text-slate-900">Open projects</h1>
+          <p className="mt-2 text-sm text-slate-600 sm:text-base">
+            These projects come from real owner submissions. Apply with your details and the operator will confirm
+            if you’re assigned.
+          </p>
+        </div>
         <FreelancerProjectList projects={projects} />
       </div>
     </main>

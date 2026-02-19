@@ -38,23 +38,32 @@ function SignInForm() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col items-center justify-center px-4 py-12">
-      <Link href="/" className="absolute left-4 top-4 inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+    <main className="min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-white flex flex-col items-center justify-center px-4 py-12">
+      <Link
+        href="/"
+        className="absolute left-4 top-4 inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+      >
         <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         Back to home
       </Link>
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-10 shadow-lg">
+      <div className="w-full max-w-md rounded-2xl border border-indigo-100 bg-white/90 p-10 shadow-lg">
         <div className="text-center mb-8">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900 mb-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-600 mb-4 shadow-md">
             <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Operator Login</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Operator login</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Sign in to review projects, assign freelancers, and publish listings.
+            This area is for your internal team only. Use your operator credentials to manage projects, freelancers, and
+            guest‑facing listings.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
